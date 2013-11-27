@@ -1,0 +1,77 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+	    <title>Spiral</title>
+	    <script type="text/javascript" language="javascript" src="spiral.js"></script>
+	    <script type="text/javascript" language="javascript">
+	        var matrix = null;
+	        var spiral = null;
+	        var block = null;
+	        var timer = null;
+	        
+	        function setSpiralOptions()
+	        {
+	            var width = document.getElementById("width").value;
+	            var height = document.getElementById("height").value;
+	            var blocksize = 20;
+	            
+	            // Validate input
+	            if (width == "" || height == "" || blocksize == "" || !isNumber((+width)) || !isNumber((+height)) || !isNumber((+blocksize)))
+	            {
+	                alert("Please enter numeric values.")
+	                return false;
+	            }
+	            if ((+width) < (+blocksize) || (+height) < (+blocksize))
+	            {
+	                alert("Neither width nor height can be less the block size ("+blocksize+").")
+	                return false;
+	            }
+	            
+	            // Create matrix
+		        matrix = new Matrix(width,height,blocksize,document.getElementById("spiralContainer"));
+    		    matrix.create();
+    		    
+    		    // Create spiral
+    		    spiral = new Spiral(document.getElementById("direction").value);
+    		    
+    		    // Create central block
+    		    block = new Block(matrix.centerX,matrix.centerY);
+    		    
+    		    // Build spiral
+    		    clearTimeout(timer);
+    		    buildSpiral();
+		    }
+           
+            // Recursive method to generate spiral next move called every 50ms by itself
+            function buildSpiral() 
+            {
+	            spiral.generate(block);
+	            if (block.x > -1 && block.x < matrix.blocksPerRow && block.y > -1 && block.y < matrix.blocksPerCol) 
+	            {
+	                timer = setTimeout('buildSpiral()', 50);
+	                // Updates the color just of the current block, doesn't have to redraw all the matrix, faster.
+	                matrix.updateBlock(block,matrix.colorFill);
+	            }
+	            else 
+	            {
+            		clearTimeout(timer);
+            		timer = null;
+		        }
+	        }
+	        
+	        // Call the matrix method showBlockInfo on block click
+	        function showBlockInfo(block)
+	        {
+	            matrix.showBlockInfo(block);
+	        }
+	    </script>
+	</head>
+	<body>
+	    <form id="formSpiralConfiguration" action="">
+		    Width: <input id="width" size="4" maxlength="4" type="text" value="320" /><br/>
+		    Height: <input id="height" size="4" maxlength="4" type="text" value="320" /><br/>
+		    Direction: <select id="direction"><option value="1">Right</option><option value="3">Left</option></select><br/>
+		    <input type="button" value="Start" onclick="setSpiralOptions()" />
+		</form>
+		<div id="spiralContainer">&nbsp;</div>
+	</body>
+</html>
